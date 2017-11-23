@@ -1,6 +1,6 @@
 # Capstone_Project_Rossmann_Sales_Prediction
 Udacity machine learning (advanced) Nanodegree final project
-English version is simplied, because I did the project report in Chinese.
+English version is simplied, because I did the project report in Chinese. The final score on the Kaggle LB was top 7.6% with my solution.
 
 CN:
 1. 项目报告名为 'mlnd_capstone_report_Li.pdf'.
