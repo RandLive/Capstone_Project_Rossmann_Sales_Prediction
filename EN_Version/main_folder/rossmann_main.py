@@ -6,7 +6,7 @@ Created on Wed Aug  2 11:37:09 2017
 """
 
 # =============================================================================
-# 调用所需的库
+# import packages
 # =============================================================================
 import pandas as pd
 import numpy as np
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 
 # =============================================================================
-# 读取数据集 
+# read data
 # =============================================================================
 df_train = pd.read_csv("../input/train.csv", low_memory=False)
 df_test = pd.read_csv("../input/test.csv", low_memory=False)
@@ -29,7 +29,7 @@ df_store = pd.read_csv("../input/store.csv", low_memory=False)
 
 
 # =============================================================================
-# 异常值去除
+# remove outlier
 # =============================================================================
 def remove_outliers(data):
     df_0 = data.loc[data.Sales ==0]   
@@ -49,7 +49,7 @@ def remove_outliers(data):
 
 
 # =============================================================================
-# 提取时间格式数据
+# handle time data
 # =============================================================================
 time_format = '%Y-%m-%d'
 def seperate_date(data):     
@@ -63,7 +63,7 @@ def seperate_date(data):
     return data
 
 # =============================================================================
-# 添加销售均值
+# add mean sales value
 # =============================================================================
 mean_store_sales = []
 
@@ -138,7 +138,7 @@ def add_mean_sales(data, data_store = df_store):
     return data_store
 
 # =============================================================================
-# 去除没有出现的Store信息
+# remove usless Store information
 # =============================================================================
 def drop_stores(data_test, data):
 
@@ -153,7 +153,7 @@ def drop_stores(data_test, data):
 
 
 # =============================================================================
-# 补充特征工程
+# more feature engineering
 # =============================================================================	
 def feature_eng_compl(data):
         
@@ -178,23 +178,25 @@ def feature_eng_compl(data):
 
     
 # =============================================================================
-# 开始执行特征工程
+# begining feature engineering
 # =============================================================================
     
-# 提取时间格式数据
+# handle time data
 print ('seperate date ...............')   
 df_train = seperate_date(df_train)
 df_test = seperate_date(df_test)
-# 添加销售均值
+
+# add mean sales value
 df_store = add_mean_sales(df_train, df_store)
 print ('add mean sales ...............') 
-# 补充特征工程
+
+# more feature engineering
 print ('more feature engineering ...............')
 df_train = feature_eng_compl(df_train).drop('Customers', axis=1)
 df_test = feature_eng_compl(df_test)
 
 # =============================================================================
-# 特征组合，添加'DaysToHoliday'
+# add 'DaysToHoliday' feature
 # =============================================================================
 holidaysofyear = df_train[(df_train['StateHoliday'] == 1)].DayOfYear.reset_index(name='DayOfHoliday').DayOfHoliday.unique()
 holidaysofyear = sorted(holidaysofyear)
@@ -208,7 +210,7 @@ for holiday in holidaysofyear:
 print ('drop useless store information ...............')  
 df_store = drop_stores(df_test, df_store)
     
-# 去除异常值
+# remove outlier
 print ('remove outliers ...............') 
 df_train = remove_outliers(df_train)
 
@@ -218,23 +220,23 @@ df_test = df_test.drop('Date', axis=1)
 
 
 # =============================================================================
-# 使用Xgboost进行训练，代码的实现，部分参考以下链接
+# Xgboost Kernel
 # https://www.kaggle.com/mmueller/liberty-mutual-group-property-inspection-prediction/xgb-feature-importance-python/code
 # =============================================================================
 
 def create_feature_map(features):
-    # 建立feature绘图
+    # feature importance plot
     outfile = open('xgb.fmap', 'w')
     for i, feat in enumerate(features):
         outfile.write('{0}\t{1}\tq\n'.format(i, feat))
     outfile.close()
 
 def rmspe(y, yhat):
-    # rmspe计算
+    # rmspe 
     return np.sqrt(np.mean((yhat/y-1) ** 2))
 
 def rmspe_xg(yhat, y):
-    # xgboost中对rmspe参数赋值
+    # rmspe in Xgboost
     y = np.expm1(y.get_label())
     yhat = np.expm1(yhat)
     return "rmspe", rmspe(y,yhat)
@@ -302,7 +304,7 @@ for iter in range(0,7):
     gbm.save_model(str(file_name)+'.model')
     
 # =============================================================================
-#  绘制特征重要性图，这部分代码基于：
+#  feature importance plot, based on：
 #  https://www.kaggle.com/mmueller/liberty-mutual-group-property-inspection-prediction/xgb-feature-importance-python/code
 # =============================================================================
 create_feature_map(features)
